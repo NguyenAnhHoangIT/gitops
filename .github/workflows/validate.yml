@@ -24,4 +24,4 @@ jobs:
           sudo mv kubeconform /usr/local/bin/
 
       - name: Validate Kubernetes manifests
-        run: kubeconform -strict -summary k8s/ss
+        run: kubeconform -strict -summary k8s/
