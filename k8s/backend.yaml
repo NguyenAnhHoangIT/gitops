@@ -1,12 +1,22 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: backend
   namespace: demo
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  replicas: 1
+  replicas: 5
+  strategy:
+    canary:
+      analysis:
+        templates:
+          - templateName: success-rate
+      steps:
+        - setWeight: 20
+        - pause: { duration: 10s }
+        - setWeight: 40
+        - pause: { duration: 10s }
   selector:
     matchLabels:
       app: backend
@@ -20,6 +30,13 @@ spec:
           image: hanhogan/balatro-lite-backend:latest
           ports:
             - containerPort: 3001
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
           env:
             - name: NODE_ENV
               value: "production"
