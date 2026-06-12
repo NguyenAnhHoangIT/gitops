@@ -31,6 +31,7 @@ spec:
               email_configs:
               - to: 'nahoangit@gmail.com'
                 send_resolved: true
+            - name: 'null'
         crds:
           enabled: false
         grafana:
