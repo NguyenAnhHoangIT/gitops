@@ -41,6 +41,10 @@ Cấu hình các manifest Kubernetes bao gồm `Rollout`, `ServiceMonitor`, và 
 ![ArgoCD Resource Tree](assets/argocd-resource-tree.png)
 *(Sơ đồ chứng minh các tài nguyên ServiceMonitor, PrometheusRule, và Rollout được cấu hình đúng và đang hoạt động lành mạnh trên cụm).*
 
+### Truy vấn Metric `flask_http_request_total` trên Prometheus:
+![Truy vấn Prometheus](assets/prometheus-query.png)
+*(Giá trị metric được ghi nhận đầy đủ từ cả 4 Pods hoạt động, tăng lũy kế liên tục khi chạy load generator).*
+
 ---
 
 ## Lab 4: Rollout thả canary tự động
