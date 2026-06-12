@@ -6,8 +6,8 @@ metadata:
 spec:
   metrics:
   - name: success-rate
-    interval: 10s
-    count: 3
+    interval: 15s
+    count: 4
     successCondition: result[0] >= 0.95
     failureLimit: 1
     provider:
@@ -15,7 +15,7 @@ spec:
         address: http://prometheus-kube-prometheus-prometheus.prometheus.svc:9090
         query: |
           (
-            sum(rate(flask_http_request_total{status=~"2.."}[1m]))
+            sum(rate(flask_http_request_total{status=~"2.."}[30s]))
             /
-            sum(rate(flask_http_request_total[1m]))
+            sum(rate(flask_http_request_total[30s]))
           ) or on() vector(1)
