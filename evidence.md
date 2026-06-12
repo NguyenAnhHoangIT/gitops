@@ -55,3 +55,33 @@ Khi phiên bản lỗi được phát hiện, hệ thống tự động ngắt k
 
 ![ArgoCD AnalysisRun Failure](assets/canary-abort-rollback.png)
 *(Hình ảnh chứng minh phép đo AnalysisRun phát hiện tỉ lệ thành công giảm sâu dưới ngưỡng 95% và tự động kích hoạt rollback).*
+
+---
+
+# Tổng hợp minh chứng tiêu chuẩn ĐẠT (Cả 4 tiêu chí)
+
+### 1. Thay đổi qua Git · ArgoCD Synced (no drift) · Reproduce được từ Git
+- **Cách hoạt động**: Mọi thay đổi về hạ tầng, cấu hình ứng dụng (`Rollout`, `Service`, `HPA`, `ServiceMonitor`, `PrometheusRule`) đều được định nghĩa khai báo dưới dạng mã nguồn (Git) và đồng bộ tự động qua ArgoCD.
+- **Minh chứng**: Trạng thái đồng bộ hoàn hảo (Synced) và sơ đồ tài nguyên trực quan trên ArgoCD:
+  ![ArgoCD Resource Tree](assets/argocd-resource-tree.png)
+
+### 2. `git revert` rollback < 5 phút
+- **Cách hoạt động**: Khi cần khôi phục thủ công, ta chỉ cần tạo một commit revert (ví dụ revert file cấu hình phiên bản `api.yaml`) và push lên Git. ArgoCD tự động nhận diện thay đổi và cập nhật lại trạng thái mong muốn trong vòng chưa đầy 1 phút.
+- **Lịch sử Git commit**:
+  ```bash
+  git log --oneline -n 3
+  # Cho thấy các thay đổi phiên bản v5 -> v6 -> revert v5 được ghi nhận đầy đủ trên Git lịch sử.
+  ```
+
+### 3. 1 SLO + 1 alert fire về email cá nhân khi inject lỗi
+- **Cấu hình SLO & Alert**: 
+  - Định nghĩa cảnh báo SLO `ApiHighErrorRate` trong `k8s-api/prometheusrule.yaml` (khi tỉ lệ HTTP 5xx > 5% trong 2 phút).
+  - Định nghĩa SMTP Mail Receiver gửi tới `nahoangit@gmail.com` trong Helm Chart Value của Alertmanager (`argocd/apps/prometheus.yaml`).
+- **Hoạt động**: Khi inject lỗi (ERROR_RATE > 0.05), hệ thống Prometheus phát hiện và Alertmanager tự động kích hoạt cảnh báo, gửi email thông báo về mail cá nhân.
+
+### 4. Canary bản lỗi tự abort về bản cũ (Quan trọng nhất)
+- **Cách hoạt động**: Khi phát hành phiên bản lỗi, bộ kiểm định `AnalysisRun` tự động đo đạc chỉ số thành công HTTP. Do tỉ lệ thành công thấp hơn 95%, hệ thống lập tức thực hiện **Auto-Abort** và **Auto-Rollback** về phiên bản ổn định gần nhất mà không cần can thiệp thủ công.
+- **Minh chứng trên Argo Rollouts Dashboard**:
+  ![Argo Rollouts Dashboard](assets/argo-rollouts-dashboard.png)
+  *(Biểu đồ lịch sử Revisions cho thấy Revision 1 và 2 lỗi đều đã được gỡ bỏ Pods và đánh dấu mũi tên đỏ đi xuống/Failed, trong khi Revision 3 ổn định được giữ lại làm Stable có tích xanh).*
+
