@@ -18,7 +18,7 @@ spec:
               resolve_timeout: 5m
               smtp_from: 'alerts@mygitops.local'
               smtp_smarthost: 'smtp.gmail.com:587'
-              smtp_auth_username: 'your-email@gmail.com'
+              smtp_auth_username: 'nguyenanhhoang1482004@gmail.com'
               smtp_auth_password: 'your-app-password'
             route:
               group_by: ['alertname']
@@ -46,3 +46,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
