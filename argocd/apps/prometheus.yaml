@@ -10,13 +10,33 @@ spec:
     repoURL: https://prometheus-community.github.io/helm-charts
     targetRevision: 58.2.2
     helm:
-      parameters:
-        - name: alertmanager.enabled
-          value: "false"
-        - name: grafana.enabled
-          value: "false"
-        - name: prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues
-          value: "false"
+      values: |
+        alertmanager:
+          enabled: true
+          config:
+            global:
+              resolve_timeout: 5m
+              smtp_from: 'alerts@mygitops.local'
+              smtp_smarthost: 'smtp.gmail.com:587'
+              smtp_auth_username: 'your-email@gmail.com'
+              smtp_auth_password: 'your-app-password'
+            route:
+              group_by: ['alertname']
+              group_wait: 10s
+              group_interval: 10s
+              repeat_interval: 1h
+              receiver: 'email-notifications'
+            receivers:
+            - name: 'email-notifications'
+              email_configs:
+              - to: 'your-personal-email@gmail.com'
+                send_resolved: true
+        grafana:
+          enabled: false
+        prometheus:
+          prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
   destination:
     server: https://kubernetes.default.svc
     namespace: prometheus

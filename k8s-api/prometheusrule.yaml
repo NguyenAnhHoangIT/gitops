@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: api-slo-rules
+  namespace: demo
+  labels:
+    app: api
+spec:
+  groups:
+    - name: api-slo
+      rules:
+        - alert: ApiHighErrorRate
+          expr: sum(rate(flask_http_request_total{status=~"5.."}[2m])) / sum(rate(flask_http_request_total[2m])) > 0.05
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "API Error Rate too high: {{ $value | humanizePercentage }}"
+            description: "The API service error rate has exceeded 5% (success rate below 95%) in the last 2 minutes."
