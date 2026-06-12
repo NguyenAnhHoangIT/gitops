@@ -37,7 +37,7 @@ spec:
         - setWeight: 25
         - analysis:
             templates:
-              - templateName: success-rate
+              - templateName: api-success-rate
         - setWeight: 50
         - pause: { duration: 30s }
         - setWeight: 100
