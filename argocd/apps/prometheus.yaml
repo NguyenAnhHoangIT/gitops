@@ -6,14 +6,16 @@ metadata:
 spec:
   project: default
   source:
-    chart: prometheus
+    chart: kube-prometheus-stack
     repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 25.21.0
+    targetRevision: 58.2.2
     helm:
       parameters:
         - name: alertmanager.enabled
           value: "false"
-        - name: server.persistentVolume.enabled
+        - name: grafana.enabled
+          value: "false"
+        - name: prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues
           value: "false"
   destination:
     server: https://kubernetes.default.svc
