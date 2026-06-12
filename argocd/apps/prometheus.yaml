@@ -18,8 +18,8 @@ spec:
               resolve_timeout: 5m
               smtp_from: 'alerts@mygitops.local'
               smtp_smarthost: 'smtp.gmail.com:587'
-              smtp_auth_username: 'nguyenanhhoang1482004@gmail.com'
-              smtp_auth_password: 'your-app-password'
+              smtp_auth_username: 'nahoangit@gmail.com'
+              smtp_auth_password: 'rvzb myle vzrv dzzm'
             route:
               group_by: ['alertname']
               group_wait: 10s
@@ -29,8 +29,10 @@ spec:
             receivers:
             - name: 'email-notifications'
               email_configs:
-              - to: 'your-personal-email@gmail.com'
+              - to: 'nahoangit@gmail.com'
                 send_resolved: true
+        crds:
+          enabled: false
         grafana:
           enabled: false
         prometheus:
