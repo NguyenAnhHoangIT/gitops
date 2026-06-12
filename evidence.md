@@ -42,8 +42,8 @@ Cấu hình các manifest Kubernetes bao gồm `Rollout`, `ServiceMonitor`, và 
 *(Sơ đồ chứng minh các tài nguyên ServiceMonitor, PrometheusRule, và Rollout được cấu hình đúng và đang hoạt động lành mạnh trên cụm).*
 
 ### Truy vấn Metric `flask_http_request_total` trên Prometheus:
-![Truy vấn Prometheus](assets/prometheus-query.png)
-*(Giá trị metric được ghi nhận đầy đủ từ cả 4 Pods hoạt động, tăng lũy kế liên tục khi chạy load generator).*
+![Truy vấn Prometheus](assets/prometheus-query-graph.png)
+*(Đồ thị dạng Graph dốc đi lên chứng minh lượng request `flask_http_request_total` tăng dần liên tục theo thời gian khi load generator chạy).*
 
 ---
 
