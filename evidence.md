@@ -16,17 +16,38 @@ Giám sát cụm Kubernetes sử dụng Prometheus Operator và quản lý tri�
 
 ---
 
-## Lab 2: Tự động Hủy & Lùi phiên bản Canary (Canary Auto-Abort & Rollback)
+## Lab 2: Viết app Flask có /metrics → build image
 
-### 1. Chi tiết Lỗi Đo lường AnalysisRun
-Khi đẩy phiên bản lỗi `v6` (tỷ lệ lỗi 50%), hệ thống giám sát Prometheus phát hiện tỷ lệ thành công sụt giảm sâu xuống còn **87.2%**, vi phạm ngưỡng tối thiểu **95%** và kích hoạt trạng thái **Failed** ngay chu kỳ quét thứ 3.
+Ứng dụng Flask phục vụ API được tích hợp sẵn endpoint `/metrics` để Prometheus thu thập số liệu. Sau đó, ứng dụng được đóng gói thành Docker image `w9-api:1` và nạp vào máy ảo Minikube.
 
-![Chi tiết Phép đo Thất bại](assets/canary-abort-rollback.png)
+### Lệnh kiểm tra hình ảnh bên trong cụm Minikube:
+```powershell
+minikube image ls -p minikube | Select-String "w9-api"
+```
 
-### 2. Sơ đồ Cấu trúc Tài nguyên ArgoCD sau khi Rollback
-Sau khi phát hiện lỗi, hệ thống tự động:
-1. Đánh dấu trạng thái Rollout là **Degraded** (Auto-Abort).
-2. Xóa bỏ/Scale down toàn bộ các pod của ReplicaSet lỗi (`api-7959b686cf`).
-3. Khôi phục hoạt động của 4 pod thuộc phiên bản ổn định trước đó (`api-f4d6975dc`) để tiếp nhận 100% traffic (Auto-Rollback).
+### Kết quả đầu ra:
+```text
+docker.io/library/w9-api:1
+```
+*(Kết quả này chứng minh ảnh `w9-api:1` đã được tải và sẵn sàng sử dụng trực tiếp trong cụm Minikube).*
 
-![Sơ đồ Tài nguyên tự động Quay lui](assets/argocd-resource-tree.png)
+---
+
+## Lab 3: Viết k8s-api/ + Application → push → Prometheus thấy metric
+
+Cấu hình các manifest Kubernetes bao gồm `Rollout`, `ServiceMonitor`, và `PrometheusRule` cho dịch vụ API. Các tài nguyên này được đồng bộ tự động qua ArgoCD.
+
+### Sơ đồ cấu trúc tài nguyên của ứng dụng API trong ArgoCD:
+![ArgoCD Resource Tree](assets/argocd-resource-tree.png)
+*(Sơ đồ chứng minh các tài nguyên ServiceMonitor, PrometheusRule, và Rollout được cấu hình đúng và đang hoạt động lành mạnh trên cụm).*
+
+---
+
+## Lab 4: Rollout thả canary tự động
+
+Quá trình nâng cấp phiên bản ứng dụng được kiểm định an toàn tự động qua Argo Rollouts kết hợp Prometheus Analysis. 
+
+Khi phiên bản lỗi được phát hiện, hệ thống tự động ngắt kết nối (Abort) và dịch chuyển toàn bộ traffic quay về phiên bản cũ ổn định (Rollback):
+
+![ArgoCD AnalysisRun Failure](assets/canary-abort-rollback.png)
+*(Hình ảnh chứng minh phép đo AnalysisRun phát hiện tỉ lệ thành công giảm sâu dưới ngưỡng 95% và tự động kích hoạt rollback).*
